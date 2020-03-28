@@ -5,7 +5,7 @@ class Board:
 
     def __init__(self, rows = 3, cols = 3, win_threshold = 3):
         
-        self.state = np.zeros((rows, cols))
+        self.state = np.zeros((rows, cols), dtype=np.int16)
         self.rows = rows
         self.cols = cols
         self.win_threshold = win_threshold
@@ -24,15 +24,46 @@ class Board:
 
     def getAvailablePos(self):
         """  Get state positions that have no value (non-zero) """
-        return self.state == 0
+        return np.argwhere(self.state == 0)
 
     def getStateHash(self):
         """  Get hash key of state """
-        return str(self.state)
+        return hash(str(self.state))
 
     def checkWinner(self):
         """  Get winner, if one exists """
+        """ TODO: Not general case, only works for 3x3 board """
+
         symbols = np.unique(self.state)
+        symbols = list(symbols[np.nonzero(symbols)])
 
         for sym in symbols:
-            positions = (self.state == sym)
+
+            # Check rows
+            row= np.any((np.all(self.state == sym, axis=1)))
+
+            # Check columns
+            col = np.any((np.all(self.state == sym, axis=0)))
+
+            # Check diagonals
+            diag1 = np.array([self.state[0,0], self.state[1,1], self.state[2,2]])
+            diag1 = np.all(diag1 == sym)
+            
+            diag2 = np.array([self.state[0,2], self.state[1,1], self.state[2,0]])
+            diag2 = np.all(diag2 == sym)
+
+            # Check if state has winner and return winner in that case
+            if row or col or diag1 or diag2:
+                return sym
+            
+        # No winner found
+        return 0 
+
+    def checkGameEnded(self):
+        return len(self.getAvailablePos()) == 0
+
+    def resetGame(self):
+        self.state = np.zeros((self.rows, self.cols), dtype=np.int16)
+
+    def __str__(self):
+        return str(self.state)
