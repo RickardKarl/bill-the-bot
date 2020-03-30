@@ -1,3 +1,4 @@
+from tictactoe.learning import Trainer
 
 class Agent:
     """  Class that defines agent and its possible actions """
@@ -10,13 +11,20 @@ class Agent:
         self.actions = self.current_state.getAvailablePos()
         self.action_history = []
 
-        self.trainer = None
+        self.trainer = Trainer(self)
 
     def getPossibleActions(self):
+        """ Get possible actions """
+        self.updatePossibleActions()
         return self.actions
+
+    def updatePossibleActions(self):
+        """ Update possible actions """
+        self.actions = self.current_state.getAvailablePos()
     
-    def performAction(self, action, state = None):
-        """ Make move from agent, updates the state and possible actions  """
+    def performAction(self, action, state = None, updateQ = False):
+        """ Make move from agent, updates the state and possible actions.
+            Also updates Q at the same time.                        """
 
         if state == None:
             state = self.current_state
@@ -24,9 +32,16 @@ class Agent:
         # Read action
         x = action[0]
         y = action[1]
+
+
+        # Update Q as part of Q-learning in the Trainer class
+        if updateQ is True:
+            self.trainer.updateQ(state, action)
+
         # Make move
         state.setPosition(x, y, self.symbol)
         self.action_history.append(action)
+
 
         # Update possible actions
         self.updatePossibleActions()
@@ -49,11 +64,12 @@ class Agent:
         # Update possible actions
         self.updatePossibleActions()
 
-    def getActionHash(action):
+    def getActionHash(self, action):
+        """ Get hash key of action """
         return hash(str(action))
 
-    def getNextStateHash(self, action, state = None):
-
+    def getActionHashFromState(self, action, state = None):
+        """ Get hash key of actions in a given state, also returns the hash key of that state """
         if state == None:
             state = self.current_state
 
@@ -61,7 +77,7 @@ class Agent:
         next_state_hash = state.getStateHash()
         next_actions_hash = []
         for a in self.actions:
-            next_actions_hash.append(Agent.getActionHash(a))
+            next_actions_hash.append(self.getActionHash(a))
 
         self.revertLastAction(state=state)
 
@@ -83,30 +99,19 @@ class Agent:
         self.revertLastAction(state=state)
 
         return reward
-        
-    def updatePossibleActions(self):
-        self.actions = self.current_state.getAvailablePos()
 
     def assignState(self, state):
+        """ Assign a state (Board) to the agent"""
         self.current_state = state
         self.updatePossibleActions()
 
-    def assignTrainer(self, trainer):
-        self.trainer = trainer
-
     def getBestMove(self):
-        if self.trainer != None:
-            
-            # Get best action
-            best_action = self.trainer.getBestMove(self.current_state, self.actions)
+        """ Get best move from the Trainer that has the largest expected reward """
 
-            return best_action
+        # Get hash key for state and actions
+        state_hash, actions_hash = self.getActionHashFromState(selr.current_state, self.actions)
 
-        else:
-            raise ValueError("No trainer assigned yet")
-
-
-
-
+        # Return best move (if all are equally good, then it picks one at random)
+        return self.trainer.getBestAction(state_hash, actions_hash, self.actions)
 
     

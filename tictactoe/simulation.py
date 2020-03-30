@@ -9,70 +9,64 @@ from tqdm import tqdm
 player1_symbol = 1
 player2_symbol = -1 
 
-def simulate(iterations = 1000, agent1 = None, agent2 = None, use_trainer1 = False):
+def simulate(iterations = 5000):
 
+    # Construct game board
     game = Board()
 
-    if agent1 == None:
-        agent1 = Agent(player1_symbol, game)
-        trainer1 = Trainer(agent1)
-    else:
-        agent1.assignState(game)
-        trainer1 = agent1.trainer
-    
-    if agent2 == None:
-        agent2 = Agent(player2_symbol, game)
-        trainer2 = Trainer(agent2)
-    else:
-        agent2.assignState(game)
-        trainer2 = Trainer(agent2)
+    # Construct agents
+    agent1 = Agent(player1_symbol, game)
+    agent2 = Agent(player2_symbol, game)
 
+    # Counters for wins of each agent and total number of games
     nbr_wins_agent1 = 0
     nbr_wins_agent2 = 0
     nbr_games = 0
 
+    # Pick current player
     current_player = player1_symbol
 
+    # Start iterations
     for i in tqdm(range(iterations)):
 
+        # Check if games has ended, reset if True
         if game.checkGameEnded():
             nbr_games += 1
             game.resetGame()
             agent1.updatePossibleActions()
             agent2.updatePossibleActions()
 
+        # Check who is the current player 
         if current_player == agent1.symbol:
             a = agent1
-            t = trainer1
+ 
         else:
             a = agent2
-            t = trainer2
 
-        
 
-        if current_player == player1_symbol and use_trainer1:
-            action = agent1.getBestMove()
+        # Pick random actions for agent out of possible actions
+        possible_actions = a.getPossibleActions()
+        random_idx = np.random.choice(possible_actions.shape[0])
+        action = possible_actions[random_idx]
 
-        else:
-            possible_actions = a.getPossibleActions()
-            random_idx = np.random.choice(possible_actions.shape[0])
-            action = possible_actions[random_idx]
+        # Perform move which updates Q-value for that state-action pair
+        a.performAction(action, updateQ=True)
 
-        t.updateQ(game, action)
-        a.performAction(action)
-
-        winner = game.checkWinner()
+        # Check if there is a winner
+        winner = game.checkWinner() # Returns 0 if there is no winner
         if winner != 0:
+
+            # Reset game and retrieve 
             nbr_games += 1
             game.resetGame()
-            agent1.updatePossibleActions()
-            agent2.updatePossibleActions()
 
+            # Add to count for corresponding winner
             if winner == agent1.symbol:
                 nbr_wins_agent1 += 1
             else:
                 nbr_wins_agent2 += 1
         
+        # Swap player
         if current_player == player1_symbol:
             current_player = player2_symbol
         else:
@@ -82,9 +76,7 @@ def simulate(iterations = 1000, agent1 = None, agent2 = None, use_trainer1 = Fal
     
     print("Win percentage: Agent 1 {:.2%}, Agent 2 {:.2%}.".format(nbr_wins_agent1/nbr_games, nbr_wins_agent2/nbr_games))
     
-    agent1.assignTrainer(trainer1)
-    agent2.assignTrainer(trainer2)
-
+    # Return agents
     return agent1, agent2
 
 

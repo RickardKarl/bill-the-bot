@@ -60,9 +60,11 @@ class Board:
         return 0 
 
     def checkGameEnded(self):
+        """ Check if game has ended by observing if there any possible moves left """
         return len(self.getAvailablePos()) == 0
 
     def resetGame(self):
+        """ Reset game """
         self.state = np.zeros((self.rows, self.cols), dtype=np.int16)
 
     def __str__(self):
