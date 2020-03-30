@@ -3,20 +3,26 @@ from tictactoe.agent import Agent
 from tictactoe.board import Board
 from tictactoe.learning import Trainer
 
-import numpy as np
 from tqdm import tqdm
 
 player1_symbol = 1
 player2_symbol = -1 
 
-def simulate(iterations = 5000):
+def simulate(iterations = 5000, agent1 = None, agent2 = None, exploration = False):
 
     # Construct game board
     game = Board()
 
     # Construct agents
-    agent1 = Agent(player1_symbol, game)
-    agent2 = Agent(player2_symbol, game)
+    if agent1 == None:
+        agent1 = Agent(player1_symbol, game)
+    else:
+        agent1.assignState(game)
+    
+    if agent2 == None:
+        agent2 = Agent(player2_symbol, game)
+    else:
+        agent2.assignState(game)
 
     # Counters for wins of each agent and total number of games
     nbr_wins_agent1 = 0
@@ -39,18 +45,18 @@ def simulate(iterations = 5000):
         # Check who is the current player 
         if current_player == agent1.symbol:
             a = agent1
- 
         else:
             a = agent2
 
+        # If exploration mode is true, then perofrm random actions 
+        # for agent to explore state-pair space
+        # Updates Q-value during these actions
+        if exploration is True:
+            a.performRandomAction(updateQ=True)
+        else:
+            best_action = a.getBestAction()
+            a.performAction(best_action, updateQ=False)
 
-        # Pick random actions for agent out of possible actions
-        possible_actions = a.getPossibleActions()
-        random_idx = np.random.choice(possible_actions.shape[0])
-        action = possible_actions[random_idx]
-
-        # Perform move which updates Q-value for that state-action pair
-        a.performAction(action, updateQ=True)
 
         # Check if there is a winner
         winner = game.checkWinner() # Returns 0 if there is no winner

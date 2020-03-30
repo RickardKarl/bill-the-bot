@@ -1,7 +1,8 @@
+import numpy as np
 
 class Trainer:
 
-    def __init__(self, agent, learning_parameter = 0.9, discount_factor = 0.95):
+    def __init__(self, agent, learning_parameter = 0.95, discount_factor = 0.95):
         self.agent = agent
         self.learning_parameter = learning_parameter
         self.discount_factor = discount_factor
@@ -42,11 +43,11 @@ class Trainer:
 
     def getBestAction(self, state_hash, list_action_hash, list_actions):
         """ Get best action given a set of possible actions in a given state """
-        
+
         # Pick a random action at first
         random_idx = np.random.choice(list_actions.shape[0])
         best_action = list_actions[random_idx]
-
+        
         # Find action that given largest Q in given state
         maxQ = 0
         for a_hash, action in zip(list_action_hash, list_actions):
@@ -54,7 +55,7 @@ class Trainer:
             if maxQ < tmpQ:
                 maxQ = tmpQ
                 best_action = action
-        
+
         return best_action
         
 
@@ -68,7 +69,7 @@ class Trainer:
         currentQ = self.getValueQ(state_hash, action_hash)
 
         # Find max Q value given the possible set of actions in the next state
-        next_state, next_actions = self.agent.getActionHashFromState(action, state=state)
+        next_state, next_actions = self.agent.getActionHashFromState(action=action, state=state)
         max_nextQ = self.getMaxQ(next_state, next_actions) 
         
         # Update new Q

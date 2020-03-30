@@ -1,5 +1,7 @@
 from tictactoe.learning import Trainer
 
+import numpy as np
+
 class Agent:
     """  Class that defines agent and its possible actions """
 
@@ -26,13 +28,14 @@ class Agent:
         """ Make move from agent, updates the state and possible actions.
             Also updates Q at the same time.                        """
 
+        assert action.shape == (2,), "Wrong shape " + str(action)
+
         if state == None:
             state = self.current_state
 
         # Read action
         x = action[0]
         y = action[1]
-
 
         # Update Q as part of Q-learning in the Trainer class
         if updateQ is True:
@@ -42,10 +45,17 @@ class Agent:
         state.setPosition(x, y, self.symbol)
         self.action_history.append(action)
 
-
         # Update possible actions
         self.updatePossibleActions()
+    
+    def performRandomAction(self, updateQ=True):
+        """ Perform random actions, important for exploration of state-pairs """
         
+        self.updatePossibleActions()
+        random_idx = np.random.choice(self.actions.shape[0])
+        action = self.actions[random_idx]
+
+        self.performAction(action, updateQ=updateQ)
 
     def revertLastAction(self, state = None):
         """ Make move from agent, updates the state and possible actions  """
@@ -68,18 +78,22 @@ class Agent:
         """ Get hash key of action """
         return hash(str(action))
 
-    def getActionHashFromState(self, action, state = None):
+    def getActionHashFromState(self, action = None, state = None):
         """ Get hash key of actions in a given state, also returns the hash key of that state """
-        if state == None:
+
+        if state is None:
             state = self.current_state
 
-        self.performAction(action, state=state)
+        if not action is None:
+            self.performAction(action, state=state)
+
         next_state_hash = state.getStateHash()
         next_actions_hash = []
         for a in self.actions:
             next_actions_hash.append(self.getActionHash(a))
 
-        self.revertLastAction(state=state)
+        if not action is None:
+            self.revertLastAction(state=state)
 
         return next_state_hash, next_actions_hash
 
@@ -105,13 +119,14 @@ class Agent:
         self.current_state = state
         self.updatePossibleActions()
 
-    def getBestMove(self):
+    def getBestAction(self):
         """ Get best move from the Trainer that has the largest expected reward """
 
+        self.updatePossibleActions()
+
         # Get hash key for state and actions
-        state_hash, actions_hash = self.getActionHashFromState(selr.current_state, self.actions)
+        state_hash, actions_hash = self.getActionHashFromState()
 
         # Return best move (if all are equally good, then it picks one at random)
         return self.trainer.getBestAction(state_hash, actions_hash, self.actions)
-
     
