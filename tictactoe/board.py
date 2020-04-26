@@ -3,6 +3,9 @@ import numpy as np
 class Board:
     """ Class that represents the game board of Tic Tac Toe """
 
+    playerX = 1
+    playerO = -1
+
     def __init__(self, rows = 3, cols = 3, win_threshold = 3):
         
         self.state = np.zeros((rows, cols), dtype=np.int16)
@@ -26,9 +29,12 @@ class Board:
         """  Get state positions that have no value (non-zero) """
         return np.argwhere(self.state == 0)
 
-    def getStateHash(self):
+    def getStateHash(self, inverted=False):
         """  Get hash key of state """
-        return hash(str(self.state))
+        if inverted:
+            return hash(str(self.getInvertedState()))
+        else:
+            return hash(str(self.state))
 
     def checkWinner(self):
         """  Get winner, if one exists """
@@ -66,6 +72,9 @@ class Board:
     def resetGame(self):
         """ Reset game """
         self.state = np.zeros((self.rows, self.cols), dtype=np.int16)
+
+    def getInvertedState(self):
+        return -self.state
 
     def __str__(self):
         return str(self.state)

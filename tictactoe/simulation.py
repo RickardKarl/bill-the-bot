@@ -5,24 +5,29 @@ from tictactoe.learning import Trainer
 
 from tqdm import tqdm
 
-player1_symbol = 1
-player2_symbol = -1 
+player1_symbol = Board.playerX
+player2_symbol = Board.playerO
 
-def simulate(iterations = 5000, agent1 = None, agent2 = None, exploration = False):
+def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = False, save_agent1 = None, load_agent1 = None, eval=False):
 
     # Construct game board
     game = Board()
 
     # Construct agents
-    if agent1 == None:
-        agent1 = Agent(player1_symbol, game)
+    if load_agent1 is None:
+        if agent1 is None:
+            agent1 = Agent(player1_symbol, game)
+        else:
+            agent1.assignState(game)
+            agent1.symbol = player1_symbol
     else:
-        agent1.assignState(game)
+        agent1 = Agent(player1_symbol, game, load_trainer=load_agent1)
     
-    if agent2 == None:
+    if agent2 is None:
         agent2 = Agent(player2_symbol, game)
     else:
         agent2.assignState(game)
+        agent2.symbol = player2_symbol
 
     # Counters for wins of each agent and total number of games
     nbr_wins_agent1 = 0
@@ -38,6 +43,7 @@ def simulate(iterations = 5000, agent1 = None, agent2 = None, exploration = Fals
         # Check if games has ended, reset if True
         if game.checkGameEnded():
             nbr_games += 1
+
             game.resetGame()
             agent1.updatePossibleActions()
             agent2.updatePossibleActions()
@@ -47,7 +53,6 @@ def simulate(iterations = 5000, agent1 = None, agent2 = None, exploration = Fals
             a = agent1
         else:
             a = agent2
-
         # If exploration mode is true, then perofrm random actions 
         # for agent to explore state-pair space
         # Updates Q-value during these actions
@@ -55,7 +60,7 @@ def simulate(iterations = 5000, agent1 = None, agent2 = None, exploration = Fals
             a.performRandomAction(updateQ=True)
         else:
             best_action = a.getBestAction()
-            a.performAction(best_action, updateQ=False)
+            a.performAction(best_action, updateQ=(eval==False))
 
 
         # Check if there is a winner
@@ -78,10 +83,15 @@ def simulate(iterations = 5000, agent1 = None, agent2 = None, exploration = Fals
         else:
             current_player = player1_symbol
 
-
-    
+        
+        
+    print(nbr_wins_agent1, nbr_wins_agent2, nbr_games)    
     print("Win percentage: Agent 1 {:.2%}, Agent 2 {:.2%}.".format(nbr_wins_agent1/nbr_games, nbr_wins_agent2/nbr_games))
-    
+
+    if save_agent1 is not None:
+        print("Saved trainer of agent 1 to {}".format(save_agent1))
+        agent1.saveTrainer(save_agent1)
+
     # Return agents
     return agent1, agent2
 

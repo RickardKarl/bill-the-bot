@@ -1,19 +1,23 @@
 from tictactoe.learning import Trainer
 
 import numpy as np
+import _pickle as cPickle
 
 class Agent:
     """  Class that defines agent and its possible actions """
 
 
-    def __init__(self, symbol, state):
+    def __init__(self, symbol, state, load_trainer = None):
         self.symbol = symbol
         self.current_state = state
 
         self.actions = self.current_state.getAvailablePos()
         self.action_history = []
 
-        self.trainer = Trainer(self)
+        if load_trainer is None:
+            self.trainer = Trainer(self)
+        else:
+            self.trainer = self.loadTrainer(load_trainer)
 
     def getPossibleActions(self):
         """ Get possible actions """
@@ -56,6 +60,8 @@ class Agent:
         action = self.actions[random_idx]
 
         self.performAction(action, updateQ=updateQ)
+
+        return action
 
     def revertLastAction(self, state = None):
         """ Make move from agent, updates the state and possible actions  """
@@ -105,7 +111,11 @@ class Agent:
 
         # Check winner
         if state.checkWinner() == self.symbol:
-            reward = 100
+            reward = 10
+        elif state.checkWinner() != 0 and state.checkWinner() != self.symbol:
+            reward = -1000
+        elif state.checkGameEnded():
+            reward = -50
         else:
             reward = -1
 
@@ -130,3 +140,18 @@ class Agent:
         # Return best move (if all are equally good, then it picks one at random)
         return self.trainer.getBestAction(state_hash, actions_hash, self.actions)
     
+
+    def saveTrainer(self, save_path):
+        """ Saves agent to save_path (str) """
+        dict = self.trainer.Q
+        with open(save_path, "wb") as f:
+            cPickle.dump(dict, f)
+    
+    def loadTrainer(self, save_path):
+        
+        with open(save_path, "rb") as f:
+            dict = cPickle.load(f)
+
+        return Trainer(self, Q=dict)
+        
+

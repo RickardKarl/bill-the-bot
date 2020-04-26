@@ -2,12 +2,12 @@ import numpy as np
 
 class Trainer:
 
-    def __init__(self, agent, learning_parameter = 0.95, discount_factor = 0.95):
+    def __init__(self, agent, learning_parameter = 0.95, discount_factor = 0.9, Q = {}):
         self.agent = agent
         self.learning_parameter = learning_parameter
         self.discount_factor = discount_factor
 
-        self.Q = {}
+        self.Q = Q
 
     def getStatePairKey(state_hash, action_hash):
         """ Returns state-pair hash key, requires separate state and action hash keys first """
@@ -62,18 +62,23 @@ class Trainer:
     def updateQ(self, state, action):
         """ Implements Q-learning iterative algorithm """
 
-        state_hash = state.getStateHash()
-        action_hash = self.agent.getActionHash(action)
+        for i in range(2):
 
-        # Get current Q Value
-        currentQ = self.getValueQ(state_hash, action_hash)
+            if i == 1:
+                state_hash = state.getStateHash(inverted=False)
+            else:
+                state_hash = state.getStateHash(inverted=True)
+            action_hash = self.agent.getActionHash(action)
 
-        # Find max Q value given the possible set of actions in the next state
-        next_state, next_actions = self.agent.getActionHashFromState(action=action, state=state)
-        max_nextQ = self.getMaxQ(next_state, next_actions) 
-        
-        # Update new Q
-        newQ =  (1-self.learning_parameter)*currentQ
-        newQ += self.learning_parameter*(self.agent.rewardFunction(state, action) + self.discount_factor*max_nextQ)
+            # Get current Q Value
+            currentQ = self.getValueQ(state_hash, action_hash)
 
-        self.setValueQ(state_hash, action_hash, newQ)
+            # Find max Q value given the possible set of actions in the next state
+            next_state, next_actions = self.agent.getActionHashFromState(action=action, state=state)
+            max_nextQ = self.getMaxQ(next_state, next_actions) 
+            
+            # Update new Q
+            newQ =  (1-self.learning_parameter)*currentQ
+            newQ += self.learning_parameter*(self.agent.rewardFunction(state, action) + self.discount_factor*max_nextQ)
+
+            self.setValueQ(state_hash, action_hash, newQ)
