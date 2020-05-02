@@ -4,6 +4,7 @@ from tictactoe.board import Board
 from tictactoe.learning import Trainer
 
 from tqdm import tqdm
+import random
 
 player1_symbol = Board.playerX
 player2_symbol = Board.playerO
@@ -12,7 +13,8 @@ def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = Fal
 
     # Construct game board
     game = Board()
-
+    exploration_probability = 1
+    
     # Construct agents
     if load_agent1 is None:
         if agent1 is None:
@@ -56,12 +58,15 @@ def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = Fal
         # If exploration mode is true, then perofrm random actions 
         # for agent to explore state-pair space
         # Updates Q-value during these actions
-        if exploration is True:
+        if exploration is True and random.random() < exploration_probability:
             a.performRandomAction(updateQ=True)
         else:
             best_action = a.getBestAction()
             a.performAction(best_action, updateQ=(eval==False))
 
+        # Reduce probability to explore during training
+        if exploration_probability > 0.2:
+            exploration_probability -= 1/iterations
 
         # Check if there is a winner
         winner = game.checkWinner() # Returns 0 if there is no winner

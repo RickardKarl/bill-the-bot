@@ -5,3 +5,5 @@ Bill is an agent that learns to play the game of tic-tac-toe with self-play usin
 - Run **app.py** to start the graphical interface and challenge a pre-trained agent. (Not working currently with a pre-trained though)
 - Run **main.py** to start training an agent. 
 - **tictactoe** contains the game environment of tictactoe, the agent definition and the code that simulates the training.
+
+TODO: The agent does not care about losing, but it likes to win. Must create some mechanism for rewarding the action of blocking the other player.

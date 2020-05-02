@@ -90,7 +90,7 @@ class Application(tk.Frame):
         value = self.getText(x,y)
         if value == " ":
             action_hash = self.agent.getActionHash(np.asarray([x,y]))
-            state_hash = self.board.getStateHash()
+            state_hash = self.board.getStateHash(inverted=True)
             Q = self.agent.trainer.getValueQ(state_hash, action_hash)
             return "{:.2f}".format(Q)
         else:

@@ -82,7 +82,8 @@ class Agent:
 
     def getActionHash(self, action):
         """ Get hash key of action """
-        return hash(str(action))
+        action_hash = 10*(action[0]+1) + (action[1]+1)
+        return action_hash
 
     def getActionHashFromState(self, action = None, state = None):
         """ Get hash key of actions in a given state, also returns the hash key of that state """
@@ -110,15 +111,17 @@ class Agent:
         self.performAction(action, state=state)
 
         # Check winner
-        if state.checkWinner() == self.symbol:
-            reward = 10
-        elif state.checkWinner() != 0 and state.checkWinner() != self.symbol:
-            reward = -1000
+        winner = state.checkWinner()
+        if winner != 0:
+            if winner == self.symbol:
+                reward = 10
+            else:
+                reward = -1000 # Will never get here
+                
         elif state.checkGameEnded():
             reward = -50
         else:
-            reward = -1
-
+            reward = 0
         # Revert action
         self.revertLastAction(state=state)
 

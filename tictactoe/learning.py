@@ -11,7 +11,7 @@ class Trainer:
 
     def getStatePairKey(state_hash, action_hash):
         """ Returns state-pair hash key, requires separate state and action hash keys first """
-        return hash(str(state_hash)+str(action_hash))
+        return state_hash*action_hash
 
     def getValueQ(self, state_hash, action_hash):
         """ Get expected reward given an action in a given state,
@@ -19,7 +19,6 @@ class Trainer:
             Input is state and action hash key                          """
 
         state_action_key = Trainer.getStatePairKey(state_hash, action_hash)
-
         if state_action_key in self.Q:
             return self.Q.get(state_action_key)
         else:
@@ -51,7 +50,7 @@ class Trainer:
         # Find action that given largest Q in given state
         maxQ = 0
         for a_hash, action in zip(list_action_hash, list_actions):
-            tmpQ = self.getValueQ(state_hash, a_hash) 
+            tmpQ = self.getValueQ(state_hash, a_hash)
             if maxQ < tmpQ:
                 maxQ = tmpQ
                 best_action = action
@@ -62,23 +61,19 @@ class Trainer:
     def updateQ(self, state, action):
         """ Implements Q-learning iterative algorithm """
 
-        for i in range(2):
 
-            if i == 1:
-                state_hash = state.getStateHash(inverted=False)
-            else:
-                state_hash = state.getStateHash(inverted=True)
-            action_hash = self.agent.getActionHash(action)
+        state_hash = state.getStateHash()
+        action_hash = self.agent.getActionHash(action)
 
-            # Get current Q Value
-            currentQ = self.getValueQ(state_hash, action_hash)
+        # Get current Q Value
+        currentQ = self.getValueQ(state_hash, action_hash)
 
-            # Find max Q value given the possible set of actions in the next state
-            next_state, next_actions = self.agent.getActionHashFromState(action=action, state=state)
-            max_nextQ = self.getMaxQ(next_state, next_actions) 
-            
-            # Update new Q
-            newQ =  (1-self.learning_parameter)*currentQ
-            newQ += self.learning_parameter*(self.agent.rewardFunction(state, action) + self.discount_factor*max_nextQ)
+        # Find max Q value given the possible set of actions in the next state
+        next_state, next_actions = self.agent.getActionHashFromState(action=action, state=state)
+        max_nextQ = self.getMaxQ(next_state, next_actions) 
+        
+        # Update new Q
+        newQ =  (1-self.learning_parameter)*currentQ
+        newQ += self.learning_parameter*(self.agent.rewardFunction(state, action) + self.discount_factor*max_nextQ)
 
-            self.setValueQ(state_hash, action_hash, newQ)
+        self.setValueQ(state_hash, action_hash, newQ)

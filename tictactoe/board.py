@@ -8,7 +8,7 @@ class Board:
 
     def __init__(self, rows = 3, cols = 3, win_threshold = 3):
         
-        self.state = np.zeros((rows, cols), dtype=np.int16)
+        self.state = np.zeros((rows, cols), dtype=np.int8)
         self.rows = rows
         self.cols = cols
         self.win_threshold = win_threshold
@@ -31,10 +31,23 @@ class Board:
 
     def getStateHash(self, inverted=False):
         """  Get hash key of state """
-        if inverted:
-            return hash(str(self.getInvertedState()))
-        else:
-            return hash(str(self.state))
+        factor = 1
+        state_hash = 0
+        for i in range(self.rows):
+            for j in range(self.cols):
+                
+                if inverted:
+                    state_hash -= self.state[i,j]*factor
+                else:
+                    state_hash += self.state[i,j]*factor
+                
+                factor = 10*factor
+        return state_hash
+        #if inverted:
+        #    return hash(str(self.getInvertedState()))
+        #else:
+        #    print(str(self.state), hash(str(self.state)))
+        #    return hash(str(self.state))
 
     def checkWinner(self):
         """  Get winner, if one exists """
