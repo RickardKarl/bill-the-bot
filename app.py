@@ -23,8 +23,6 @@ class Application(tk.Frame):
         
         # Train agent and assign it to this game
         print("Preparing agent")
-        #self.agent, agent2 = simulate(iterations=5000, exploration=True)
-        #self.agent.assignState(self.board)
         self.agent = Agent(playerX, self.board, load_trainer=agent_save)
         self.agent_symbol = self.agent.symbol
 

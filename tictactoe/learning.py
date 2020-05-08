@@ -3,10 +3,16 @@ import numpy as np
 class Trainer:
 
     def __init__(self, agent, learning_parameter = 0.95, discount_factor = 0.9, Q = {}):
+        """
+            agent (Agent)
+            learning_parameter (float)
+            discount_factor (float)
+            Q (dict)
+        """
+
         self.agent = agent
         self.learning_parameter = learning_parameter
         self.discount_factor = discount_factor
-
         self.Q = Q
 
     def getStatePairKey(state_hash, action_hash):

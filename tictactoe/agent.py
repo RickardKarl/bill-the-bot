@@ -8,6 +8,12 @@ class Agent:
 
 
     def __init__(self, symbol, state, load_trainer = None):
+        """
+        symbol (string)
+        state (Board)
+        load_trainer (string) - Path to saved trainer
+        """
+
         self.symbol = symbol
         self.current_state = state
 
@@ -29,8 +35,10 @@ class Agent:
         self.actions = self.current_state.getAvailablePos()
     
     def performAction(self, action, state = None, updateQ = False):
-        """ Make move from agent, updates the state and possible actions.
-            Also updates Q at the same time.                        """
+        """ 
+            Make move from agent, updates the state and possible actions.
+            Also updates Q at the same time.                        
+        """
 
         assert action.shape == (2,), "Wrong shape " + str(action)
 
@@ -112,14 +120,11 @@ class Agent:
 
         # Check winner
         winner = state.checkWinner()
-        if winner != 0:
-            if winner == self.symbol:
-                reward = 10
-            else:
-                reward = -1000 # Will never get here
-                
-        elif state.checkGameEnded():
-            reward = -50
+        missed_blocking_move = state.checkWinPossible(self.symbol)
+        if winner == self.symbol:
+                reward = 100
+        elif missed_blocking_move is True:
+                reward = -100
         else:
             reward = 0
         # Revert action
@@ -151,6 +156,9 @@ class Agent:
             cPickle.dump(dict, f)
     
     def loadTrainer(self, save_path):
+        """
+        Load Q-values from another trainer
+        """
         
         with open(save_path, "rb") as f:
             dict = cPickle.load(f)

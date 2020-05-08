@@ -9,27 +9,20 @@ import random
 player1_symbol = Board.playerX
 player2_symbol = Board.playerO
 
-def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = False, save_agent1 = None, load_agent1 = None, eval=False):
+def simulate(iterations, explore_only = False, save_agent1 = None):
+    """
+        iterations (int)
+        explore_only (bool) - If true, then only explore.
+                              Else,  follow an epsilon-greedy policy that lowers the probability to explore over time.
+    """
 
     # Construct game board
     game = Board()
     exploration_probability = 1
     
-    # Construct agents
-    if load_agent1 is None:
-        if agent1 is None:
-            agent1 = Agent(player1_symbol, game)
-        else:
-            agent1.assignState(game)
-            agent1.symbol = player1_symbol
-    else:
-        agent1 = Agent(player1_symbol, game, load_trainer=load_agent1)
-    
-    if agent2 is None:
-        agent2 = Agent(player2_symbol, game)
-    else:
-        agent2.assignState(game)
-        agent2.symbol = player2_symbol
+    # Initialize players
+    agent1 = Agent(player1_symbol, game)
+    agent2 = Agent(player2_symbol, game)
 
     # Counters for wins of each agent and total number of games
     nbr_wins_agent1 = 0
@@ -39,13 +32,15 @@ def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = Fal
     # Pick current player
     current_player = player1_symbol
 
+    # Epsilon-greedy 
+    exploration_probability = 1.0
+
     # Start iterations
     for i in tqdm(range(iterations)):
 
         # Check if games has ended, reset if True
         if game.checkGameEnded():
             nbr_games += 1
-
             game.resetGame()
             agent1.updatePossibleActions()
             agent2.updatePossibleActions()
@@ -55,16 +50,17 @@ def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = Fal
             a = agent1
         else:
             a = agent2
-        # If exploration mode is true, then perofrm random actions 
-        # for agent to explore state-pair space
-        # Updates Q-value during these actions
-        if exploration is True and random.random() < exploration_probability:
+
+        # Explore
+        if explore_only is True or random.random() < exploration_probability:
             a.performRandomAction(updateQ=True)
+        # Exploit
         else:
             best_action = a.getBestAction()
             a.performAction(best_action, updateQ=(eval==False))
 
         # Reduce probability to explore during training
+        # Do not remove completely
         if exploration_probability > 0.2:
             exploration_probability -= 1/iterations
 
@@ -89,7 +85,7 @@ def simulate(iterations = 10000, agent1 = None, agent2 = None, exploration = Fal
             current_player = player1_symbol
 
         
-        
+    # Print outcome
     print(nbr_wins_agent1, nbr_wins_agent2, nbr_games)    
     print("Win percentage: Agent 1 {:.2%}, Agent 2 {:.2%}.".format(nbr_wins_agent1/nbr_games, nbr_wins_agent2/nbr_games))
 

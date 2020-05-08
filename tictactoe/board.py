@@ -7,7 +7,11 @@ class Board:
     playerO = -1
 
     def __init__(self, rows = 3, cols = 3, win_threshold = 3):
-        
+        """
+            rows (int)
+            cols (int)
+            win_threshold (int) - Do not change
+        """ 
         self.state = np.zeros((rows, cols), dtype=np.int8)
         self.rows = rows
         self.cols = cols
@@ -43,11 +47,6 @@ class Board:
                 
                 factor = 10*factor
         return state_hash
-        #if inverted:
-        #    return hash(str(self.getInvertedState()))
-        #else:
-        #    print(str(self.state), hash(str(self.state)))
-        #    return hash(str(self.state))
 
     def checkWinner(self):
         """  Get winner, if one exists """
@@ -82,11 +81,45 @@ class Board:
         """ Check if game has ended by observing if there any possible moves left """
         return len(self.getAvailablePos()) == 0
 
+    def checkWinPossible(self, last_player_value):
+        """ 
+            Test whether there is a winning move available for the next player.
+            Return True if it is available.
+            last_player (int)
+        """
+
+        # Next player is the negative of last_player_value
+        next_player_player = - last_player_value
+
+        winning_move_found = False
+        for action in self.getAvailablePos():
+            x = action[0]
+            y = action[1]
+
+            # Perform action
+            self.setPosition(x, y, next_player_player)
+
+            # Check if winning move
+            if self.checkWinner() != 0:
+                winning_move_found = True
+
+            # Revert action
+            self.setPosition(x, y, 0)
+
+            # If found, then return True
+            if winning_move_found is True:
+                return True
+
+        return False
+            
+        
+
     def resetGame(self):
         """ Reset game """
         self.state = np.zeros((self.rows, self.cols), dtype=np.int16)
 
     def getInvertedState(self):
+        """ Return state where player O and X have swapped places """
         return -self.state
 
     def __str__(self):
