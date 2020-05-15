@@ -5,3 +5,4 @@ Bill is an agent that learns to play the game of tic-tac-toe with self-play usin
 - Run **app.py** to start the graphical interface and challenge a pre-trained agent. (Not working currently with a pre-trained though)
 - Run **trainPlayerX.py** to start training an agent. 
 - **tictactoe** contains the game environment of tictactoe, the agent definition and the code that simulates the training.
+- Required packages are found in **requirements.txt**, install by typing *pip install -r requirements.txt*
