@@ -122,9 +122,9 @@ class Agent:
         winner = state.checkWinner()
         missed_blocking_move = state.checkWinPossible(self.symbol)
         if winner == self.symbol:
-                reward = 100
+                reward = 1
         elif missed_blocking_move is True:
-                reward = -100
+                reward = -1
         else:
             reward = 0
         # Revert action

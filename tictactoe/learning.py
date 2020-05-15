@@ -2,7 +2,7 @@ import numpy as np
 
 class Trainer:
 
-    def __init__(self, agent, learning_parameter = 0.95, discount_factor = 0.9, Q = {}):
+    def __init__(self, agent, learning_parameter = 0.1, discount_factor = 0.9, Q = {}):
         """
             agent (Agent)
             learning_parameter (float)
