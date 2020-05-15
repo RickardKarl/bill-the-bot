@@ -136,7 +136,7 @@ class Application(tk.Frame):
         
         # Raise error because position is non-empty
         if self.board.getPosition(x,y) == playerX or self.board.getPosition(x,y) == playerO:
-            print("Error")
+            print("Error: This action is not possible, pick another position.")
         else:
             # Update board
             self.board.setPosition(x, y, self.current_player)
