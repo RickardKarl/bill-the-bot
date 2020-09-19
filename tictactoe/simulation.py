@@ -57,7 +57,7 @@ def simulate(iterations, explore_only = False, save_agent1 = None):
         # Exploit
         else:
             best_action = a.getBestAction()
-            a.performAction(best_action, updateQ=(eval==False))
+            a.performAction(best_action, updateQ=(True))
 
         # Reduce probability to explore during training
         # Do not remove completely
