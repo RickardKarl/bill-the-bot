@@ -98,6 +98,6 @@ def simulate(iterations, explore_only = False, save_agent = None):
             agent2.saveTrainer(save_agent)
 
     # Return agents
-    return agent1, agent2
+    # return agent1, agent2
 
 
