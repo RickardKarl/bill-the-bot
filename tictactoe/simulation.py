@@ -9,7 +9,7 @@ import random
 player1_symbol = Board.playerX
 player2_symbol = Board.playerO
 
-def simulate(iterations, explore_only = False, save_agent1 = None):
+def simulate(iterations, explore_only = False, save_agent = None):
     """
         iterations (int)
         explore_only (bool) - If true, then only explore.
@@ -89,9 +89,13 @@ def simulate(iterations, explore_only = False, save_agent1 = None):
     print(nbr_wins_agent1, nbr_wins_agent2, nbr_games)    
     print("Win percentage: Agent 1 {:.2%}, Agent 2 {:.2%}.".format(nbr_wins_agent1/nbr_games, nbr_wins_agent2/nbr_games))
 
-    if save_agent1 is not None:
-        print("Saved trainer of agent 1 to {}".format(save_agent1))
-        agent1.saveTrainer(save_agent1)
+    if save_agent is not None:
+        if (nbr_wins_agent1/nbr_games) > (nbr_wins_agent2/nbr_games):
+            print("Saved trainer of agent 1 to {}".format(save_agent))
+            agent1.saveTrainer(save_agent)
+        else:
+            print("Saved trainer of agent 2 to {}".format(save_agent))
+            agent2.saveTrainer(save_agent)
 
     # Return agents
     return agent1, agent2
